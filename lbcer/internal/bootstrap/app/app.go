@@ -51,7 +51,7 @@ func (app *App) Run() error {
 		defer wg.Done()
 		defer app.cancel()
 		defer app.logger.Debug("http.Server stopped")
-		if err := registry.RunProxy(ctx, app.logger); err != nil {
+		if err := registry.RunProxy(ctx, app.logger, app.config.App); err != nil {
 			app.logger.Error("http.Server stopped with error", loggerPkg.Error(err))
 		}
 	}()

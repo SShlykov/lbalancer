@@ -3,29 +3,23 @@ package registry
 import (
 	"context"
 	"net/http"
-	"net/http/httputil"
-	"net/url"
 
+	"github.com/SShlykov/lbalancer/lbcer/internal/app/urls"
+	configPkg "github.com/SShlykov/lbalancer/lbcer/internal/config"
 	loggerPkg "github.com/SShlykov/lbalancer/lbcer/internal/pkg/logger"
 )
 
-var target = "https://jsonplaceholder.typicode.com/todos/1"
-
-func RunProxy(ctx context.Context, logger loggerPkg.Logger) error {
+func RunProxy(ctx context.Context, logger loggerPkg.Logger, config configPkg.App) error {
 	handler := http.NewServeMux()
-	uri, err := url.Parse(target)
-	if err != nil {
-		return err
-	}
-	proxy := httputil.NewSingleHostReverseProxy(uri)
+	urlGetter := urls.New(config.Hosts)
 
 	handler.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
 		req.Host = req.URL.Host
 
-		proxy.ServeHTTP(w, req)
+		urlGetter.Get().ServeHTTP(w, req)
 	})
 
-	server := http.Server{Addr: ":8080", Handler: handler}
+	server := http.Server{Addr: config.Port, Handler: handler}
 
 	go func() {
 		if err := server.ListenAndServe(); err != nil {

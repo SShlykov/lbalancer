@@ -9,6 +9,12 @@ import (
 
 type Config struct {
 	Logger Logger `yaml:"logger"`
+	App    App    `yaml:"app"`
+}
+
+type App struct {
+	Hosts []string `yaml:"hosts"`
+	Port  string   `yaml:"port"`
 }
 
 type Logger struct {
